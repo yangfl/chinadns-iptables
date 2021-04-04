@@ -2,23 +2,23 @@
 all: apply.sh
 
 apply.sh: a.py ipv4.list
-	./$< > $@
+	python3 $< > $@
 
 .PHONY: apply
 apply: apply.sh
-	sudo sh $<; true
+	-sudo sh $<
 
 revert.sh: a.py ipv4.list
-	./$< -d > $@
+	python3 $< -d > $@
 
 .PHONY: revert
 revert: revert.sh
-	sudo sh $<; true
+	-sudo sh $<
 
 .PHONY: reboot
 reboot: apply.sh revert.sh
-	sudo sh revert.sh; true
-	sudo sh apply.sh; true
+	-sudo sh revert.sh
+	-sudo sh apply.sh
 
 ###
 
