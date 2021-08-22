@@ -30,9 +30,9 @@ merge: ipv4.list ipv4.list.new
 	@mv $<.t $<
 
 .PHONY: scan
-scan: res0 res1 res2 res3 res4 res5 res6 res7
+scan: ipv4.list.new
 
-ipv4.list.new:
+ipv4.list.new: res0 res1 res2 res3 res4 res5 res6 res7
 	cat res* | grep -F "Address: " | sort | uniq | sed "s/Address: //g" >> $@
 
 res%:
@@ -40,13 +40,13 @@ res%:
 	while [ "$$i" != 50 ]; do \
 		i=$$((i+1)); \
 		echo $@ $$i; \
-		a=$$(nslookup -timeout=3 www.youtube.com 8.8.8.8); \
-		echo "$$a" | grep -qP 'Name:\twww.youtube.com' && echo "$$a" >> $@; \
-	done; true
+		nslookup -timeout=3 www.youtube.com 8.8.8.8 | grep -PA 1 'Name:\twww.youtube.com' >> $@; \
+	done; \
+	true
 
 .PHONY: clean
 clean:
-	$(RM) res* res *.sh ipv4.list.*
+	$(RM) res* *.sh ipv4.list.*
 
 .PHONY: tests
 tests:

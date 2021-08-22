@@ -33,9 +33,7 @@ def iptables_cmd(v6, action, chain, namev6, hexstring):
         'ip6tables' if v6 == 6 else 'iptables', action, chain,
         '-p udp --sport 53 -m string --hex-string',
         '"|00{}{}|"'.format('10' if namev6 == 6 else '04', hexstring),
-        '--algo bm --from',
-        '74' if v6 == 6 else '54',
-        '-j DROP'))
+        '--algo bm --from', '74' if v6 == 6 else '54', '-j DROP'))
 
 if not_compress:
     for chain in chains:
