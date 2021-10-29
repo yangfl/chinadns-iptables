@@ -40,9 +40,11 @@ res%:
 	while [ "$$i" != 50 ]; do \
 		i=$$((i+1)); \
 		echo $@ $$i; \
-		nslookup -timeout=3 www.youtube.com 8.8.8.8 | grep -PA 1 'Name:\twww.youtube.com' >> $@; \
+		nslookup -timeout=1 www.youtube.com 8.8.4.4 | grep -PA 1 'Name:\twww.youtube.com' >> $@; \
 	done; \
 	true
+# nslookup -timeout=1 www.youtube.com 8.8.4.4 | grep -PA 1 'Name:\twww.youtube.com' >> $@;
+# nslookup -timeout=1 -type=AAAA google.com 8.8.4.4 | grep -PA 1 'Name:\tgoogle.com' >> $@
 
 .PHONY: clean
 clean:
