@@ -32,8 +32,14 @@ merge: ipv4.list ipv4.list.new
 .PHONY: scan
 scan: ipv4.list.new
 
+.PHONY: ipv4.list.new
 ipv4.list.new: res0 res1 res2 res3 res4 res5 res6 res7
+	wc -l $@
 	cat res* | grep -F "Address: " | sort | uniq | sed "s/Address: //g" >> $@
+	$(RM) res*
+	sort $@ | uniq >> $@.tmp
+	mv $@.tmp $@
+	wc -l $@
 
 res%:
 	i=0; \
