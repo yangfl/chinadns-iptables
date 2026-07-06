@@ -15,10 +15,16 @@ else:
     chains = ['INPUT', 'FORWARD'] if '-f' in sys.argv else ['INPUT']
 
 
-with open('ipv4.list') as f:
-    ipv4reps = [i.strip() for i in f.readlines()]
-ipv4reps.append('0.0.0.0')
-ipv4addrs = [ipaddress.IPv4Address(i) for i in ipv4reps]
+ipv4addrs = list[ipaddress.IPv4Address]()
+ipv6addrs = list[ipaddress.IPv6Address]()
+with open('ip.txt') as f:
+    for l in f:
+        ip = ipaddress.ip_address(l.strip())
+        if ip.version == 4:
+            ipv4addrs.append(ip)
+        else:
+            ipv6addrs.append(ip)
+
 
 ipv4nets = [ipaddress.IPv4Network((net, 24)) for net, cnt in Counter(
     int(addr) & 0xffffff00 for addr in ipv4addrs).items() if cnt >= 8]
@@ -34,17 +40,14 @@ for addr in ipv4addrs:
 ipv4hexs.sort()
 
 
-ipv6reps = ['fe80::1']
-ipv6addrs = [ipaddress.IPv6Address(i) for i in ipv6reps]
-
 ipv6hexs = ['%032x' % int(i) for i in ipv6addrs]
-ipv6hexs.extend(['200100000000000000000000', '83faceb00c000025de'])
+ipv6hexs.extend(['200100000000000000000000', '2a032880f1'])
 ipv6hexs.sort()
 
 
 def iptables_cmd_ipver(
-        ipver: Literal[4, 6], to_delete: bool, chain,
-        dnstype: Literal[4, 6], mask):
+        ipver: Literal[4, 6], to_delete: bool, chain: str,
+        dnstype: Literal[4, 6], mask: str):
     return ' '.join([
         'ip6tables' if ipver == 6 else 'iptables',
         '-D' if to_delete else '-A',
@@ -54,13 +57,15 @@ def iptables_cmd_ipver(
         '--algo bm --from', '74' if ipver == 6 else '54', '-j DROP'])
 
 
-def iptables_cmds(to_delete: bool, chain, dnstype: Literal[4, 6], mask):
+def iptables_cmds(
+        to_delete: bool, chain: str, dnstype: Literal[4, 6], mask: str):
     return [
         iptables_cmd_ipver(ipver, to_delete, chain, dnstype, mask)
         for ipver in [4, 6]]
 
 
-def nftables_cmds(to_delete: bool, chain, dnstype: Literal[4, 6], mask):
+def nftables_cmds(
+        to_delete: bool, chain: str, dnstype: Literal[4, 6], mask: str):
     return [' '.join([
         'nft', 'delete' if to_delete else 'add', 'rule',
         'inet', 'filter', chain,
